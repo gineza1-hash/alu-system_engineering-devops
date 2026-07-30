@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+apt-get update -y
+apt-get install -y haproxy
+
+cat >> /etc/haproxy/haproxy.cfg << 'HAPROXY_EOF'
+
+frontend http_front
+    bind *:80
+    default_backend http_back
+
+backend http_back
+    balance roundrobin
+    server 7165-web-01 54.157.50.150:80 check
+    server 7165-web-02 13.218.160.25:80 check
+HAPROXY_EOF
+
+sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
+
+service haproxy restart
